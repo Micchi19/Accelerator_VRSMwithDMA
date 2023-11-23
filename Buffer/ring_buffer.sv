@@ -9,12 +9,16 @@ module ring_buffer#(
     input logic [DATA_WIDTH - 1:0]                                  din,
     output logic                                                    full_flag,
     output logic                                                    empty_flag,
+    output logic [BURST_LENGTH - 1:0][DATA_WIDTH - 1:0]                                 fifo0_checker, // test
     output logic [DATA_WIDTH - 1:0]                                 dout
 );
 
     logic [BURST_LENGTH - 1:0][DATA_WIDTH - 1:0]                     buffer;
     logic [$clog2(BURST_LENGTH) - 1:0]                               wptr, rptr;
 
+
+    // for test
+    assign fifo0_checker = buffer;
 
     // Output Assignment
     assign dout = buffer[rptr];

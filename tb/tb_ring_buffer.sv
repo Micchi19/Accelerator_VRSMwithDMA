@@ -11,7 +11,6 @@ logic                                                   full_flag;
 logic                                                   empty_flag;
 logic [DATA_WIDTH - 1:0]                                dout;
 //logic [$clog2(BUFFER_SIZE) - 1:0]                       wptr_check, rptr_check;
-//logic [DATA_WIDTH - 1:0]                                fifo_check0;
 
 ring_buffer dut(
                     .clk(clk),
