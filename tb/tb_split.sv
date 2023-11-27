@@ -18,6 +18,7 @@ logic [KERNEL_LENGTH - 1:0]                             ren_i_checker;
 logic [KERNEL_LENGTH - 1:0][BURST_LENGTH - 1:0][DATA_WIDTH - 1:0]               fifo0_checker;
 logic [KERNEL_LENGTH - 1:0]                             full_flag_i_checker;
 logic [KERNEL_LENGTH - 1:0]                             empty_flag_i_checker;
+logic [KERNEL_LENGTH - 1:0][$clog2(BURST_LENGTH) - 1:0] wptr_checker, rptr_checker;
 
 
 split dut(
@@ -35,8 +36,8 @@ split dut(
                     .fifo0_checker(fifo0_checker),
                     .full_flag_i_checker(full_flag_i_checker),
                     .empty_flag_i_checker(empty_flag_i_checker),
-                    // .wptr_check(wptr_check),
-                    // .rptr_check(rptr_check),
+                    .wptr_checker(wptr_checker),
+                    .rptr_checker(rptr_checker),
                     .dout(dout)
 );
 
@@ -82,8 +83,10 @@ initial begin
     #(CLK_PERIOD * 2)   test(0, 0, 0);
     full_buffer(1);
     #(CLK_PERIOD)       test(0, 0, 0);
+    #(CLK_PERIOD * 100)
     full_buffer(2);
     #(CLK_PERIOD)       test(0, 0, 0);
+    #(CLK_PERIOD * 100)
     last_buffer(3);
     #(CLK_PERIOD)       test(0, 0, 0);
     #(CLK_PERIOD * 20);

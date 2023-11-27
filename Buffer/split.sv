@@ -17,6 +17,8 @@ module split#(
     output logic [KERNEL_LENGTH - 1:0][BURST_LENGTH - 1:0][DATA_WIDTH - 1:0]               fifo0_checker,
     output logic [KERNEL_LENGTH - 1:0]                             full_flag_i_checker,
     output logic [KERNEL_LENGTH - 1:0]                             empty_flag_i_checker,
+    output logic [KERNEL_LENGTH - 1:0][$clog2(BURST_LENGTH) - 1:0] wptr_checker, 
+    output logic [KERNEL_LENGTH - 1:0][$clog2(BURST_LENGTH) - 1:0] rptr_checker,
     output logic [KERNEL_LENGTH - 1:0][DATA_WIDTH - 1:0]    dout
 );
 
@@ -55,6 +57,8 @@ module split#(
                                             .full_flag(full_flag_i[i]),
                                             .empty_flag(empty_flag_i[i]),
                                             .fifo0_checker(fifo0_checker[i]),
+                                            .wptr_checker(wptr_checker[i]),
+                                            .rptr_checker(rptr_checker[i]),
                                             .dout(data_i[i + 1])
             );
         end
@@ -62,18 +66,18 @@ module split#(
         for(i = 1;i < KERNEL_LENGTH;i++) begin
             // Each wen & ren
             assign wen_i[i] = !empty_flag_i[i - 1];
-            assign ren_i[i - 1] = !full_flag_i[i];
+            assign ren_i[i - 1] = !full_flag_i[i] && !empty_flag_i[i - 1];
         end
     endgenerate
 
     // always_ff @(posedge clk or posedge rst) begin
     //     for(integer j = 1;j < KERNEL_LENGTH;j++) begin
     //         if(rst) begin
-    //             wen_i[i] <= 1'b0;
-    //             ren_i[i] <= 1'b0;
+    //             wen_i[j] <= 1'b0;
+    //             ren_i[j] <= 1'b0;
     //         end else begin
-    //             wen_i[i] <= !empty_flag_i[i - 1];
-    //             ren_i[i - 1] <= !full_flag_i[i];
+    //             wen_i[j] <= !empty_flag_i[j - 1];
+    //             ren_i[j - 1] <= !full_flag_i[j];
     //         end
     //     end
     // end
@@ -92,5 +96,6 @@ module split#(
     assign data_i[0] = din;
     assign wen_i[0] = wen;
     assign ren_i[2] = ren && !empty_flag_i[0] && full_flag_i[1];
+
 
 endmodule
