@@ -1,6 +1,7 @@
 module tb_ring_buffer();
 localparam DATA_WIDTH = 32;
-localparam BUFFER_SIZE = 128;
+localparam BURST_LENGTH = 128;
+localparam NUM_LANE = 4;
 
 logic                                                   clk;
 logic                                                   rst;
@@ -10,7 +11,8 @@ logic [DATA_WIDTH - 1:0]                                din;
 logic                                                   full_flag;
 logic                                                   empty_flag;
 logic [DATA_WIDTH - 1:0]                                dout;
-//logic [$clog2(BUFFER_SIZE) - 1:0]                       wptr_check, rptr_check;
+logic [$clog2(NUM_LANE * BURST_LENGTH) - 1:0]                       wptr_checker, rptr_checker;
+logic [(NUM_LANE * BURST_LENGTH) - 1:0][DATA_WIDTH - 1:0]                                 fifo_checker;
 
 ring_buffer dut(
                     .clk(clk),
@@ -20,9 +22,9 @@ ring_buffer dut(
                     .din(din),
                     .full_flag(full_flag),
                     .empty_flag(empty_flag),
-                    // .wptr_check(wptr_check),
-                    // .rptr_check(rptr_check),
-                    // .fifo_check0(fifo_check0)
+                    .wptr_checker(wptr_checker),
+                    .rptr_checker(rptr_checker),
+                    .fifo_checker(fifo_checker),
                     .dout(dout)
 );
 
@@ -67,9 +69,21 @@ task sample1();
     end
 endtask
 
-task sample2();
+task edge0();
     begin
         #(CLK_PERIOD)       test(1, 0, 1);
+        #(CLK_PERIOD)       test(1, 1, 2);
+        #(CLK_PERIOD)       test(1, 1, 3);
+        #(CLK_PERIOD)       test(1, 1, 4);
+        #(CLK_PERIOD)       test(1, 1, 5);
+        #(CLK_PERIOD)       test(0, 1, 6);
+        #(CLK_PERIOD)       test(0, 0, 0);
+    end
+endtask
+
+task edge1();
+    begin
+        #(CLK_PERIOD)       test(1, 1, 1);
         #(CLK_PERIOD)       test(1, 1, 2);
         #(CLK_PERIOD)       test(1, 1, 3);
         #(CLK_PERIOD)       test(1, 1, 4);
@@ -84,7 +98,7 @@ initial begin
     #(CLK_PERIOD * 2)   rst = 1;
     #(CLK_PERIOD)       rst = 0;
     #(CLK_PERIOD * 2)   test(0, 0, 0);
-    sample2();
+    edge1();
     #(CLK_PERIOD)       test(0, 0, 0);
     #(CLK_PERIOD * 20);
     $finish();
